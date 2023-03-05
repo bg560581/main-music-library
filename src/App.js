@@ -1,48 +1,69 @@
 import { useEffect, useState, Suspense } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { createResource as fetchData, API_URL } from './helper'
 import Gallery from './components/Gallery'
 import SearchBar from './components/SearchBar'
-// import { DataContext } from './context/DataContext'
-import { createResource as fetchData } from './helper'
 import Spinner from './Spinner'
-// import '../loading_spinner.gif'
+import AlbumView from './components/AlbumView'
+import ArtistView from './components/ArtistView'
 
 function App() {
-	let [searchTerm, setSearchTerm] = useState('')
+	let [search, setSearch] = useState('')
 	let [message, setMessage] = useState('Search for Music!')
-	let [data, setData] = useState(null)
+	let [data, setData] = useState()
 
 	useEffect(() => {
-        if (searchTerm) {
-            setData(fetchData(searchTerm))
+        if (search) {
+            setData(fetchData(search))
         }
-    }, [searchTerm])
+    }, [search])
+
+    useEffect(() => {
+        if(search) {
+            const fetchData = async () => {
+                document.title = `${search} Music`
+                const response = await fetch(API_URL + search)
+                const resData = await response.json()
+                if (resData.results.length > 0) {
+                    return setData(resData.results)
+                } else {
+                    return setMessage('Not Found')
+                }
+            }
+            fetchData()
+        }
+    }, [search])
     
 	
 	const handleSearch = (e, term) => {
 		e.preventDefault()
-		setSearchTerm(term)
+		setSearch(term)
 	}
 
 
-	const renderGallery = () => {
-    if(data){
-        return (
-            <Suspense fallback={<Spinner />}>
-                <Gallery data={data} />
-            </Suspense>
-        )
-    }
-}
 return (
     <div className="App">
-        <SearchBar handleSearch={handleSearch} />
-        {message}
-        {renderGallery()}
+    {message}
+        <Router>
+            <Routes>
+                <Route path="/" element={
+                    <fragment>
+                        <SearchBar handleSearch = {handleSearch}/>
+                        <Suspense fallback={<Spinner />}>
+                        <Gallery data={data} />
+                        </Suspense>
+                    </fragment>
+                } />
+                <Route path="/album/:id" element={<AlbumView />} />
+                <Route path="/artist/:id" element={<ArtistView />} />
+            </Routes>
+        </Router>
     </div>
 )
-
 
     
 }
 
+
 export default App;
+
