@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 function AlbumView() {
     const { id } = useParams()
     const [ albumData, setAlbumData ] = useState([])
-    // const navigate = useNavigate()
+    const navigate = useNavigate()
 
     
     
@@ -28,15 +28,15 @@ function AlbumView() {
         )
     })
 
-    // const navButtons = () => {
-    //     return (
-    //         <div>
-    //             <button onClick={() => navigate(-1)}>Back</button>
-    //             |
-    //             <button onClick={() => navigate('/')}>Home</button>
-    //         </div>
-    //     )
-    // }
+    const navButtons = () => {
+        return (
+            <div>
+                <button onClick={() => navigate(-1)}>Back</button>
+                |
+                <button onClick={() => navigate('/')}>Home</button>
+            </div>
+        )
+    }
     return (
         <div>
             {albumData.length > 0 ? <h2>{albumData[0].albumName}</h2> : <h2>Loading...</h2>}
